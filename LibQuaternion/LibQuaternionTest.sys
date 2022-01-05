@@ -1,0 +1,146 @@
+MODULE LibQuaternionTest(SYSMODULE)
+  
+  VAR num testsRun;
+  VAR num testsFailed;
+
+  PROC testQuaternionLibrary()
+    setupTest;
+    
+    testNoRotation;
+    testXRotation;
+    testYRotation;
+    testZRotation;
+    testXYRotation;
+    testYZRotation;
+    testXZRotation;
+    testXYZRotation;
+    
+    plotTest;
+  ENDPROC
+  
+  LOCAL PROC setupTest()
+    testsRun:=0;
+    testsFailed:=0;
+  ENDPROC
+  
+  LOCAL PROC plotTest()
+    IF testsFailed>0 THEN
+      ErrWrite ValToStr(testsFailed) + " tests failed!", "";
+    ELSE
+      ErrWrite \I, "OK: all " + ValToStr(testsRun) + " tests succeeded", "";
+    ENDIF
+  ENDPROC
+  
+  LOCAL PROC testNoRotation()
+    assertEqualsNum 0, QuaternionMinAngle(QUATERNION_IDENTITY);
+    assertEqualsNum 0, QuaternionAngleBetween(QUATERNION_IDENTITY,QUATERNION_IDENTITY);
+    assertEqualsNum 0, minRotation();
+  ENDPROC
+  
+  LOCAL PROC testXRotation()
+    assertEqualsNum 1, minRotation(\Rx:=1);
+    assertEqualsNum 10, minRotation(\Rx:=10) \Dec:=3;
+    assertEqualsNum 90, minRotation(\Rx:=90);
+    assertEqualsNum 170, minRotation(\Rx:=170);
+    assertEqualsNum 180, minRotation(\Rx:=180);
+    assertEqualsNum 170, minRotation(\Rx:=190);
+    assertEqualsNum 90, minRotation(\Rx:=270);
+    assertEqualsNum 0, minRotation(\Rx:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testYRotation()
+    assertEqualsNum 1, minRotation(\Ry:=1);
+    assertEqualsNum 10, minRotation(\Ry:=10) \Dec:=3;
+    assertEqualsNum 90, minRotation(\Ry:=90);
+    assertEqualsNum 170, minRotation(\Ry:=170);
+    assertEqualsNum 180, minRotation(\Ry:=180);
+    assertEqualsNum 170, minRotation(\Ry:=190);
+    assertEqualsNum 90, minRotation(\Ry:=270);
+    assertEqualsNum 0, minRotation(\Ry:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testZRotation()
+    assertEqualsNum 1, minRotation(\Rz:=1);
+    assertEqualsNum 10, minRotation(\Rz:=10) \Dec:=3;
+    assertEqualsNum 90, minRotation(\Rz:=90);
+    assertEqualsNum 170, minRotation(\Rz:=170);
+    assertEqualsNum 180, minRotation(\Rz:=180);
+    assertEqualsNum 170, minRotation(\Rz:=190);
+    assertEqualsNum 90, minRotation(\Rz:=270);
+    assertEqualsNum 0, minRotation(\Rz:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testXYRotation()
+    assertEqualsNum 1.414, minRotation(\Rx:=1 \Ry:=1) \Dec:=3;
+    assertEqualsNum 14.133, minRotation(\Rx:=10 \Ry:=10) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Rx:=90 \Ry:=90);
+    assertEqualsNum 179.13, minRotation(\Rx:=170 \Ry:=170) \Dec:=3;
+    assertEqualsNum 180, minRotation(\Rx:=180 \Ry:=180);
+    assertEqualsNum 179.13, minRotation(\Rx:=190 \Ry:=190) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Rx:=270 \Ry:=270);
+    assertEqualsNum 0, minRotation(\Rx:=360 \Ry:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testXZRotation()
+    assertEqualsNum 1.414, minRotation(\Rx:=1 \Rz:=1) \Dec:=3;
+    assertEqualsNum 14.133, minRotation(\Rx:=10 \Rz:=10) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Rx:=90 \Rz:=90);
+    assertEqualsNum 179.13, minRotation(\Rx:=170 \Rz:=170) \Dec:=3;
+    assertEqualsNum 180, minRotation(\Rx:=180 \Rz:=180);
+    assertEqualsNum 179.13, minRotation(\Rx:=190 \Rz:=190) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Rx:=270 \Rz:=270);
+    assertEqualsNum 0, minRotation(\Rx:=360 \Rz:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testYZRotation()
+    assertEqualsNum 1.414, minRotation(\Ry:=1 \Rz:=1) \Dec:=3;
+    assertEqualsNum 14.133, minRotation(\Ry:=10 \Rz:=10) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Ry:=90 \Rz:=90);
+    assertEqualsNum 179.13, minRotation(\Ry:=170 \Rz:=170) \Dec:=3;
+    assertEqualsNum 180, minRotation(\Ry:=180 \Rz:=180);
+    assertEqualsNum 179.13, minRotation(\Ry:=190 \Rz:=190) \Dec:=3;
+    assertEqualsNum 120, minRotation(\Ry:=270 \Rz:=270);
+    assertEqualsNum 0, minRotation(\Ry:=360 \Rz:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC testXYZRotation()
+    assertEqualsNum 1.737, minRotation(\Rx:=1 \Ry:=1 \Rz:=1) \Dec:=3;
+    assertEqualsNum 17.796, minRotation(\Rx:=10 \Ry:=10 \Rz:=10) \Dec:=3;
+    assertEqualsNum 180, minRotation(\Rx:=90 \Ry:=90 \Rz:=90);
+    assertEqualsNum 17.796, minRotation(\Rx:=170 \Ry:=170 \Rz:=170) \Dec:=3;
+    assertEqualsNum 0, minRotation(\Rx:=180 \Ry:=180 \Rz:=180) \Dec:=3;
+    assertEqualsNum 16.787, minRotation(\Rx:=190 \Ry:=190 \Rz:=190) \Dec:=3;
+    assertEqualsNum 90, minRotation(\Rx:=270 \Ry:=270 \Rz:=270);
+    assertEqualsNum 0, minRotation(\Rx:=360 \Ry:=360 \Rz:=360) \Dec:=3;
+  ENDPROC
+  
+  LOCAL PROC assertEqualsNum(num expected, num actual, \num Dec)
+    Incr testsRun;
+
+    IF Present(Dec) THEN
+      actual:=Round(actual \Dec?Dec);
+    ENDIF
+    IF expected = actual RETURN;
+    
+    ErrWrite "Expected: " + ValToStr(expected) + " but was " + ValToStr(actual), "";
+    Incr testsFailed;
+  ENDPROC
+  
+  LOCAL FUNC num minRotation(\num Rx\num Ry\num Rz)
+    VAR orient diff;
+    
+    diff:=rotate(QUATERNION_IDENTITY\Rx?Rx\Ry?Ry\Rz?Rz);
+    
+    RETURN QuaternionAngleBetween(QUATERNION_IDENTITY,diff);
+  ENDFUNC
+
+  LOCAL FUNC orient rotate(orient o,\num Rx\num Ry\num Rz)
+    VAR robtarget t;
+
+    t.rot:=o;
+    t:=RelTool(t,0,0,0\Rx?Rx\Ry?Ry\Rz?Rz);
+
+    RETURN t.rot;
+  ENDFUNC
+
+ENDMODULE

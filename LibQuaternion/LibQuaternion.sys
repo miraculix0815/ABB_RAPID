@@ -1,0 +1,126 @@
+MODULE LibQuaternion(SYSMODULE, NOSTEPIN)
+
+  RECORD QuaternionParts
+    num scalar;
+    pos vector;
+  ENDRECORD
+
+  CONST orient QUATERNION_IDENTITY:=[1,0,0,0];
+
+  !***************************************************************
+  ! FUNC QuaternionAngleBetween
+  !
+  ! Calculates the minimum angle needed to rotate directly from
+  ! o1 to o2. The rotation axis is oriented so that the angle is
+  ! minimal. The returned value is given in euler degrees [0, 180].
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************  
+  FUNC num QuaternionAngleBetween(orient o1, orient o2)
+    VAR orient rotDiff;
+
+    rotDiff:=QuaternionRotation(o1, o2);
+    
+    return QuaternionMinAngle(rotDiff);
+  ENDFUNC
+  
+  !***************************************************************
+  ! FUNC QuaternionRotation
+  !
+  ! Calculates the rotational difference between the two given
+  ! quaternion. The rotational difference is the rotation needed
+  ! to move from o1 to o2.
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************  
+  FUNC orient QuaternionRotation(orient o1, orient o2)
+    RETURN QuaternionMultiply(QuaternionConjugate(o1),o2);
+  ENDFUNC
+
+  !***************************************************************
+  ! FUNC QuaternionMinAngle
+  !
+  ! If the given quaternion is the rotational difference between
+  ! two orientations, calculates the minimum angle to go from the
+  ! first to the second orientation directly.
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************  
+  FUNC num QuaternionMinAngle(orient rotDiff)
+    VAR QuaternionParts qParts;
+
+    qParts:=QuaternionDisect(rotDiff);
+
+    RETURN 2*ATan2(VectMagn(qParts.vector),qParts.scalar);
+  ENDFUNC
+
+  !***************************************************************
+  ! FUNC QuaternionDisect
+  !
+  ! Separates the given quaternion into its scalar and vector part.
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************  
+  FUNC QuaternionParts QuaternionDisect(orient o)
+    VAR QuaternionParts qParts;
+
+    qParts.scalar:=o.q1;
+    qParts.vector.x:=o.q2;
+    qParts.vector.y:=o.q3;
+    qParts.vector.z:=o.q4;
+
+    RETURN qParts;
+  ENDFUNC
+
+  !***************************************************************
+  ! FUNC QuaternionConjugate
+  !
+  ! The conjugate of a quaternion number is a quaternion with
+  ! the same magnitudes but with the sign of the imaginary
+  ! parts changed, so:
+  !    conj(a + b i + c j + d k) = a - b i - c j - d k
+  !
+  ! The conjugate is useful because it has (umong others) the
+  ! following property:
+  !    q * q' = a2 + b2 + c2 + d2 = real number.
+  !
+  ! Multiplying a quaternion by its conjugate gives a real number.
+  ! This makes the conjugate useful for finding the multiplicative inverse.
+  ! For instance, if we are using a quaternion q to represent a rotation
+  ! then conj(q) represents the same rotation in the reverse direction.
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************
+  FUNC orient QuaternionConjugate(orient o)
+    o.q2:=-o.q2;
+    o.q3:=-o.q3;
+    o.q4:=-o.q4;
+
+    RETURN o;
+  ENDFUNC
+
+  !***************************************************************
+  ! FUNC QuaternionMultiply
+  !
+  ! Calculates the product for two given quaternions.
+  !
+  ! Author: Jan Schloessin
+  ! Date: 2021-01-04
+  !***************************************************************
+  FUNC orient QuaternionMultiply(orient o1,orient o2)
+    VAR orient product;
+
+    product.q1:=o2.q1*o1.q1-o2.q2*o1.q2-o2.q3*o1.q3-o2.q4*o1.q4;
+    product.q2:=o2.q1*o1.q2+o2.q2*o1.q1-o2.q3*o1.q4+o2.q4*o1.q3;
+    product.q3:=o2.q1*o1.q3+o2.q2*o1.q4+o2.q3*o1.q1-o2.q4*o1.q2;
+    product.q4:=o2.q1*o1.q4-o2.q2*o1.q3+o2.q3*o1.q2+o2.q4*o1.q1;
+
+    RETURN product;
+  ENDFUNC
+
+ENDMODULE
